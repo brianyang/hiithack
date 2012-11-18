@@ -1,8 +1,16 @@
 ﻿window.app = {
-    //var currentVid, nextVids, nextVidCounter, tickerAud, whistleAud, interval, restInterval;
+    config: {
+        initialized : 0
+        ,currentVid : 0
+        ,nextVids : 0
+        ,nextVidCounter : 0 
+        ,tickerAud : 0
+        ,whistleAud : 0
+        ,interval : 0
+        ,restInterval : 0
+    }
 
-
-    sounds: {
+    ,sounds: {
         tick: function() {
             document.getElementById('tickAud').play();
         }
@@ -16,62 +24,72 @@
             var f2 = function () {
                 aud.play();
             };
-            setTimeout(f2, interval - 5000);
+            setTimeout(f2, interval - 2000);
         }
         
-        , endRestInterval: function (currentVid, nextVids, nextVidCounter, tickerAud, whistleAud, interval, restInterval) {
-            if (currentVid) {
-                currentVid.pause();
+        , endRestInterval: function () {
+            if (app.config.currentVid) {
+                app.config.currentVid.pause();
             }
-            tickerAud.pause();
-            whistleAud.play();
+            app.config.tickerAud.pause();
+            app.config.whistleAud.play();
 
-            if (currentVid) {
-                app.play.playExercise(currentVid, nextVids, nextVidCounter, tickerAud, whistleAud, interval, restInterval);
+            if (app.config.currentVid) {
+                app.play.playExercise();
             }
         }
         
-        , playRestInterval: function (currentVid, nextVids, nextVidCounter, tickerAud, whistleAud, interval, restInterval) {
-            if (currentVid) {
-                currentVid.muted = true;
-                currentVid.play();
+        , playRestInterval: function () {
+            if (app.config.currentVid) {
+                app.config.currentVid.muted = true;
+                app.config.currentVid.play();
                 
                 //message: "Next Exercise: <exercise name>"
             }
             
-            app.play.queueTicker(tickerAud, restInterval);
+            app.play.queueTicker(app.config.tickerAud, app.config.restInterval);
 
             var f1 = function() {
-                app.play.endRestInterval(currentVid, nextVids, nextVidCounter, tickerAud, whistleAud, interval, restInterval);
+                app.play.endRestInterval();
             };
-            setTimeout(f1, restInterval);
+            setTimeout(f1, app.config.restInterval);
         }
 
-        , endExercise: function(currentVid, nextVids, nextVidCounter, tickerAud, whistleAud, interval, restInterval) {
-            currentVid.pause();
-            tickerAud.pause();
-            whistleAud.play();
-           
-            app.play.playRestInterval(nextVids[nextVidCounter], nextVids, nextVidCounter + 1, tickerAud, whistleAud, interval, restInterval);
+        , endExercise: function() {
+            app.config.currentVid.pause();
+            app.config.tickerAud.pause();
+            app.config.whistleAud.play();
+            app.config.currentVid = app.config.nextVids[app.config.nextVidCounter];
+            app.config.nextVidCounter++;
+            app.play.playRestInterval();
         }
 
-        , playExercise: function (currentVid, nextVids, nextVidCounter, tickerAud, whistleAud, interval, restInterval) {
+        , playExercise: function () {
             //message: "Go!"
-            currentVid.muted = true;
-            currentVid.play();
-            app.play.queueTicker(tickerAud, interval);
+            app.config.currentVid.muted = true;
+            app.config.currentVid.play();
+            app.play.queueTicker(app.config.tickerAud, app.config.interval);
             
             var f1 = function() {
-                app.play.endExercise(currentVid, nextVids, nextVidCounter, tickerAud, whistleAud, interval, restInterval);
+                app.play.endExercise();
             };
-            setTimeout(f1, interval);
+            setTimeout(f1, app.config.interval);
 
         }
 
     }
 };
 
-$('body').on('click', '#StartButton', function() {
-    app.play.playExercise(document.getElementById("vid1"), [document.getElementById("vid1"), document.getElementById("vid2"), document.getElementById("vid3")], 1, document.getElementById("tickAud"), document.getElementById("whistleAud"), 15000, 10000);
+$('body').on('click', '#StartButton', function () {
+
+    app.config.nextVidCounter = 1;
+    app.config.nextVids = [document.getElementById("vid1"), document.getElementById("vid2"), document.getElementById("vid3")];
+    app.config.currentVid = app.config.nextVids[app.config.nextVidCounter - 1];
+    app.config.tickerAud = document.getElementById("tickAud");
+    app.config.whistleAud = document.getElementById("whistleAud");
+    app.config.interval = 8000;
+    app.config.restInterval = 3000;
+
+    app.play.playExercise();
 });
 
