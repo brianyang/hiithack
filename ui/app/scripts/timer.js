@@ -3,7 +3,7 @@
         initialized : 0
         ,currentVid : 0
         ,nextVids : 0
-        ,nextVidCounter : 0 
+        ,nextVidCounter : 0
         ,tickerAud : 0
         ,whistleAud : 0
         ,interval : 0
@@ -26,7 +26,7 @@
             };
             setTimeout(f2, interval - 2000);
         }
-        
+
         , endRestInterval: function () {
             if (app.config.currentVid) {
                 app.config.currentVid.pause();
@@ -38,15 +38,15 @@
                 app.play.playExercise();
             }
         }
-        
+
         , playRestInterval: function () {
             if (app.config.currentVid) {
                 app.config.currentVid.muted = true;
                 app.config.currentVid.play();
-                
+
                 //message: "Next Exercise: <exercise name>"
             }
-            
+
             app.play.queueTicker(app.config.tickerAud, app.config.restInterval);
 
             var f1 = function() {
@@ -62,6 +62,8 @@
             app.config.currentVid = app.config.nextVids[app.config.nextVidCounter];
             app.config.nextVidCounter++;
             app.play.playRestInterval();
+
+            pubsub.publish('stop' + app.config.nextVidCounter)
         }
 
         , playExercise: function () {
@@ -69,7 +71,7 @@
             app.config.currentVid.muted = true;
             app.config.currentVid.play();
             app.play.queueTicker(app.config.tickerAud, app.config.interval);
-            
+
             var f1 = function() {
                 app.play.endExercise();
             };
