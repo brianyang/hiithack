@@ -124,8 +124,10 @@ app.get "/", routes.index
 app.get '/user', app.getUser
 app.get '/user/:id', app.userId
 app.post '/user', app.postUser
+app.put '/user', app.putUser
 
 app.post '/user/:id/exercise/:name', app.postUserExercise
+
 
 app.get '/exercises', app.getExercise
 app.post '/exercises', app.postExercise
