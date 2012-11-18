@@ -14,43 +14,46 @@ mongoose.connect process.env.MONGOHQ_URL or 'mongodb://127.0.0.1/hiithack'
 Schema = mongoose.Schema
 ObjectId = Schema.ObjectID
 
+Video = new Schema
+	author: User
+	src: String
+Video = mongoose.model 'Video', Video
+
 Exercise = new Schema
   name: String
-  #category: [Category]
-  combo: String
+  category: [Category]
+  modifications: [Mod]
+  video: [Video]
 Exercise = mongoose.model 'Exercise', Exercise
 
 Category = new Schema
   name: String
 Category = mongoose.model 'Category', Category
+	
+Mod = new Schema
+	name: String
+	type: String	#Beginner, MidLevel, Advanced
+Mod = mongoose.model 'Mod', Mod
+
+Step = new Schema
+  orderPosition: String
+  interval: String
+  exercise: Exercise
+  video: String
+  restInterval: String
+Step = mongoose.model "Step", Step
+
+Routine = new Schema
+  type: String
+  steps: [Step]
+Routine = mongoose.model "Routine", Routine
 
 User = new Schema
   name: String
   email: String
   uid: String
-  #list:[UserList]
+  routines:[Routine]
 User = mongoose.model 'User', User
-
-
-
-
-#Step = new Schema
-  #orderPosition: String
-  #interval: String
-  #exercise: String
-  #video: String
-  #restInterval: String
-#Step = mongoose.model "Step", Step
-
-
-
- #routineList: [Routine]
-  #typeOfList: String
-#UserList = mongoose.model "UserList", UserList
-
-#Routine = new Schema
-  ##steps: [Step]
-#Routine = mongoose.model "Routine", Routine
 
 
 
@@ -71,7 +74,6 @@ app.configure "development", ->
 
 app.getExercise = (req, res) ->
   Exercise.find {}, (error, data) ->
-#UserList = mew Schema
     res.json data
 
 app.postExercise = (req, res) ->
@@ -93,6 +95,7 @@ app.getUser = (req,res) ->
 app.postUser = (req,res) ->
   userData =
     name:req.query.name
+	email:req.query.email
     uid:req.query.uid
   user = new User(userData)
   user.save (error,data) ->
@@ -100,6 +103,34 @@ app.postUser = (req,res) ->
       res.json error
     else
       res.json data
+
+app.postRoutineStep (req,res) ->
+	stepName = req.query.stepName
+	routineId = req.query.routineId
+	routine = new Routine()
+	Routine.findOne {_id:req.params.id}, (error, user) ->
+		if (error)
+			res.json error
+		else if (routine == null) 
+			res.json 'no such routine'
+		else
+			routine.steps.push({step:req.query.stepName})
+			routines.save (error,data) ->
+				if (error)
+					res.json error
+				else
+					res.json data
+	
+	###
+	userData = 
+		name: req.query.name
+		email: req.query.email
+		uid: req.query.uid
+		#routines: req.query.routines
+		user = new User(userData)
+	user.routines.push ({routine: req.query.routineId})
+	user.routines
+	###
 
 app.postUserExercise = (req,res) ->
   exerciseName = req.query.exercise
