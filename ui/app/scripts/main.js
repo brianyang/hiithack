@@ -13,3 +13,8 @@ require(['app'], function(app) {
   // use app here
   console.log(app);
 });
+
+require(['timer'], function (app) {
+    // use app here
+    console.log(app);
+});
