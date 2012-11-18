@@ -24,15 +24,27 @@ Category = new Schema
   name: String
 Category = mongoose.model 'Category', Category
 
-User = mew Schema
+User = new Schema
   name: String
   email: String
   uid: String
   #list:[UserList]
 User = mongoose.model 'User', User
 
-#UserList = mew Schema
- ##routineList: [Routine]
+
+
+
+#Step = new Schema
+  #orderPosition: String
+  #interval: String
+  #exercise: String
+  #video: String
+  #restInterval: String
+#Step = mongoose.model "Step", Step
+
+
+
+ #routineList: [Routine]
   #typeOfList: String
 #UserList = mongoose.model "UserList", UserList
 
@@ -40,13 +52,6 @@ User = mongoose.model 'User', User
   ##steps: [Step]
 #Routine = mongoose.model "Routine", Routine
 
-#Step = mew Schema
-  #orderPosition: String
-  #interval: String
-  #exercise: [Exercise]
-  #video: String
-  #restInterval: String
-#Step = mongoose.model "Step", Step
 
 
 app = express()
@@ -66,6 +71,7 @@ app.configure "development", ->
 
 app.getExercise = (req, res) ->
   Exercise.find {}, (error, data) ->
+#UserList = mew Schema
     res.json data
 
 app.postExercise = (req, res) ->
@@ -95,15 +101,31 @@ app.postUser = (req,res) ->
     else
       res.json data
 
+app.postUserExercise = (req,res) ->
+  exerciseName = req.query.exercise
+  userId = req.query.id
+  user = new User()
+  User.findOne {_id:req.params.id}, (error, user) ->
+    if (error)
+      res.json error
+    else if (client == null)
+      res.json 'no such user'
+    else
+      user.exercise.push({exercise: req.query.name})
+      user.save (error,data) ->
+        if (error)
+          res.json error
+        else
+          res.json data
 
 
 app.get "/", routes.index
-app.get "/users", user.list
 
-app.get '/user', app.user
+app.get '/user', app.getUser
 app.get '/user/:id', app.userId
 app.post '/user', app.postUser
 
+app.post '/user/:id/exercise/:name', app.postUserExercise
 
 app.get '/exercises', app.getExercise
 app.post '/exercises', app.postExercise
